@@ -1,0 +1,1 @@
+from .sentiments_predictor import SentimentsPredictor
