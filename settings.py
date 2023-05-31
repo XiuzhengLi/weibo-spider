@@ -7,7 +7,6 @@ COOKIE = 'SCF=Au9Ep4Q_3LaiwFfetD52ihhPIbQuSk1xVe9e-yH36h4mOT0fsMcmdphzFLnvHs-pUf
 # 要搜索的关键词列表，可写多个, 值可以是由关键词或话题组成的列表，也可以是包含关键词的txt文件路径，
 # 如'keyword_list.txt'，txt文件中每个关键词占一行
 KEYWORD_LIST = ['迪丽热巴']
-KEYWORD_LIST = ['古力娜扎']
 # KEYWORD_LIST = 'keyword_list.txt'
 
 # 要搜索的微博类型，0代表搜索全部微博，1代表搜索全部原创微博，2代表热门微博，3代表关注人微博，4代表认证用户微博，5代表媒体微博，6代表观点微博
@@ -29,7 +28,6 @@ END_DATE = '2023-05-30'
 # 进一步细分搜索的阈值，若结果页数大于等于该值，则认为结果没有完全展示，细分搜索条件重新搜索以获取更多微博。数值越大速度越快，也越有可能漏掉微博；数值越小速度越慢，获取的微博就越多。
 # 建议数值大小设置在40到50之间。
 FURTHER_THRESHOLD = 46
-FURTHER_THRESHOLD = 1
 
 # 结果存储路径
 OUTPUT_PATH = './output'

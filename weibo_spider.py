@@ -10,7 +10,7 @@ from datetime import datetime
 
 import settings
 import utils.utils as utils
-from weibo_search import WeiboSearchClient
+from weibo_blogs import WeiboSearchClient
 from weibo_signal import WeiboSignalClient
 from sentiments_predictor import SentimentsPredictor
 from user_info import UserProfileClient

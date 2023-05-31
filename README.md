@@ -36,6 +36,7 @@ awk 'NR>100' | sort -u | python3 -m get_user_info_by_stdin
 
 ## 输出目录结构
 > 通过settings.py修改输出路径/增删输出的字段或顺序
+```
 output
 ├── output1
 │   └── blogs.csv     微博详情
@@ -54,7 +55,7 @@ output
 └── output5
     ├── user_id.csv   发布微博、评论和转发中出现的user_id
     └── user_info.csv 用户详情 + 冒犯性言论识别
-
+```
 ## 参数说明
 > 详见settings.py
 
@@ -67,11 +68,11 @@ output
 > weibo_type(微博类型，选填默认为1)、contain_type(包含内容的类型，选填默认为0)
 * 运行示例1: 抓取从 **2023-05-01** 到 **2023-05-07** 搜索 **迪丽热巴** 得到的第 **1** 页微博搜索结果
 ```
-python3 -m weibo_search.weibo_search search 迪丽热巴 1 2023-05-01 2023-05-07
+python3 -m weibo_blogs.weibo_search search 迪丽热巴 1 2023-05-01 2023-05-07
 ```
 * 运行示例2: 抓取话题 **#迪丽热巴#** 的第 **2** 页搜索结果
 ```
-python3 -m weibo_search.weibo_search search "#迪丽热巴#" 2
+python3 -m weibo_blogs.weibo_search search "#迪丽热巴#" 2
 ```
 ### weibo-signal
 > 交互信号抓取(评论、转发、点赞)
