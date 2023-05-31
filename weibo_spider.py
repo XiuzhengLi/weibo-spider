@@ -19,7 +19,7 @@ class Writer:
     def __init__(self, file_path:str, headers:str=[]):
         self.headers = headers
         exists = os.path.exists(file_path)
-        self.fp = open(file_path, 'a')
+        self.fp = open(file_path, 'a', encoding='utf-8-sig', newline='')
         self.writer = csv.writer(self.fp)
         if not exists:
             self.writer.writerow(headers)
