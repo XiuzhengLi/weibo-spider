@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 region_dict = {
     "安徽": {
         "code": 34,

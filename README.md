@@ -13,11 +13,11 @@ pip install -r requirements.txt
 ```
 * 运行，通过settings.py修改运行参数
 ```
-python -m weibo_spider run
+python3 -m weibo_spider run
 ```
 > 后台运行
 ```
-nohup python -m weibo_spider run > logs/run.log 2>&1 &
+nohup python3 -m weibo_spider run > logs/run.log 2>&1 &
 ```
 * 从user_id文件得到user_info，触发反爬后继续抓取
 > 输入：stdin, sort -u 排序去重

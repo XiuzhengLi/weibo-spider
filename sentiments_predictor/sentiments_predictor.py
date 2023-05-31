@@ -1,5 +1,6 @@
-import torch
+# -*- coding: utf-8 -*-
 
+import torch
 from transformers import BertTokenizer, BertForSequenceClassification
 
 class SentimentsPredictor:
