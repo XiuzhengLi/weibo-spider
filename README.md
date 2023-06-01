@@ -20,18 +20,9 @@ python3 -m weibo_spider run
 nohup python3 -m weibo_spider run > logs/run.log 2>&1 &
 ```
 * 从user_id文件得到user_info，触发反爬后继续抓取
-> 输入：stdin, sort -u 排序去重
+> 修改settings.py 的ID_ROW_NUM
 ```
-cat output/output5/user_id.csv | sort -u | python3 -m get_user_info_by_stdin
-```
-* 从抓取失败的行开始
-> 找到抓取失败的行数
-```
-tail -1 output/output5/user_info.csv | awk -F ',' '{print $1}' | xargs -n1 -I {} grep -n {} output/output5/user_id.csv
-```
-> 从失败的行数开始继续抓取，例如第100行
-```
-awk 'NR>100' | sort -u | python3 -m get_user_info_by_stdin
+python3 -m weibo_spider fetch_user_info
 ```
 
 ## 输出目录结构

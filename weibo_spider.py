@@ -30,6 +30,9 @@ class Writer:
         row = [doc.get(key, '') for key in output_fields]
         self.writer.writerow(row)
 
+    def write_row(self, row):
+        self.writer.writerow(row)
+
     def close(self):
         self.fp.close()
 
@@ -157,15 +160,26 @@ class WeiboSpider:
         output5_path = f'{self.output_path}/output5'
         if not os.path.exists(output5_path):
             os.mkdir(output5_path)
-        output5_user_info_file_path = f'{output5_path}/user_info.csv'
-        self.output5_user_info_writer = Writer(
-            output5_user_info_file_path, self.user_info_fields
-        )
         output5_user_id_file_path = f'{output5_path}/user_id.csv'
         self.output5_user_id_writer = Writer(
             output5_user_id_file_path, ['user_id', 'has_offensive']
         )
-        
+
+    def _close_writers(self):
+        self.output1_writer.close()
+        if self.enable_comment:
+            self.output2_comment_writer.close()
+            self.output3_comment_writer.close()
+            self.output4_comment_writer.close()
+        if self.enable_repost:
+            self.output2_repost_writer.close()
+            self.output3_repost_writer.close()
+            self.output4_repost_writer.close()
+        if self.enable_attitude:
+            self.output2_attitude_writer.close()
+            self.output3_attitude_writer.close()
+            self.output4_attitude_writer.close()
+        self.output5_user_id_writer.close()
 
     def fetch_by_keyword_and_region(self, keyword: str, region: str=''):
         for page_num in range(1, self.max_page_num+1):
@@ -174,7 +188,7 @@ class WeiboSpider:
             for mblog in mblogs:
                 mid = mblog['id']
                 mblog['text_label'] = self.predictor.predict(mblog['text'])
-                self.output5_user_id_writer.write(mblog, ['user_id', 'text_label'])
+                self.output5_user_id_writer.write_row([mblog['user_id'], mblog['text_label'], '发帖'])
                 self.output1_writer.write(mblog)
                 if self.enable_comment:
                     try:
@@ -182,9 +196,17 @@ class WeiboSpider:
                             mblog_with_comment = mblog.copy()
                             mblog_with_comment.update(comment)
                             mblog_with_comment['comment_text_label'] = self.predictor.predict(comment['comment_text'])
-                            self.output5_user_id_writer.write(mblog_with_comment, ['comment_user_id', 'comment_text_label'])
+                            self.output5_user_id_writer.write_row(
+                                [mblog_with_comment['comment_user_id'], mblog_with_comment['comment_text_label'], '评论'])
                             mblog_with_comment['secondary_comment_text_label'] = self.predictor.predict(comment['secondary_comment_text'])
-                            self.output5_user_id_writer.write(mblog_with_comment, ['secondary_comment_user_id', 'secondary_comment_text_label'])
+                            if len(mblog_with_comment) != 0:
+                                self.output5_user_id_writer.write_row(
+                                    [
+                                        mblog_with_comment['secondary_comment_user_id'],
+                                        mblog_with_comment['secondary_comment_text_label'],
+                                        '评论'
+                                    ]
+                                )
                             self.output2_comment_writer.write(comment)
                             self.output3_comment_writer.write(mblog_with_comment)
                             self.output4_comment_writer.write(mblog_with_comment)
@@ -197,7 +219,8 @@ class WeiboSpider:
                             mblog_with_repost = mblog.copy()
                             mblog_with_repost.update(repost)
                             mblog_with_repost['transmit_text_label'] = self.predictor.predict(repost['transmit_text'])
-                            self.output5_user_id_writer.write(mblog_with_repost, ['transmit_user_id', 'transmit_text_label'])
+                            self.output5_user_id_writer.write_row(
+                                [mblog_with_repost['transmit_user_id'], mblog_with_repost['transmit_text_label'], '转发'])
                             self.output2_repost_writer.write(repost)
                             self.output3_repost_writer.write(mblog_with_repost)
                             self.output4_repost_writer.write(mblog_with_repost)
@@ -240,24 +263,44 @@ class WeiboSpider:
             logging.info(f'Success to fetch keyword={keyword}...')
         logging.info('Finish to fetch...')
 
+    def _load_user_ids(self, file_path, row_num:int = 1):
+        user_ids = []
+        if os.path.exists(file_path):
+            index = 0
+            with open(file_path, 'r') as fp:
+                for line in fp.readlines():
+                    if index >= row_num:
+                        sp = line.strip().split(',')
+                        if len(sp) < 3:
+                            user_ids.append({'id': sp[0]})
+                        else:
+                            user_id, action, has_offensive = sp
+                            user_ids.append({
+                                'id': user_id,
+                                'action': action,
+                                'has_offensive': has_offensive
+                            })
+                    index += 1
+            logging.info(f'Loaded user_ids, start_num={row_num}, total={index}')
+        else:
+            logging.error(f'File path not exists, path={file_path}')
+        return user_ids
+
     # 从标准输入读入userid，并抓取用户详细信息
-    def get_user_info_by_stdin(self):
+    def fetch_user_info(self, row_num:int = settings.ID_ROW_NUM, file_path:str = ''):
         # 连续错误达到3次认为被反爬
         max_err_num = 3
         err_num = 0
+        user_id_file_path = file_path if file_path != '' else f'{self.output_path}/output5/user_id.csv'
         user_info_file_path = f'{self.output_path}/output5/user_info.csv'
         writer = Writer(user_info_file_path, self.user_info_fields)
-        for line in sys.stdin:
-            sp = line.strip().split(',')
-            if len(sp) != 2:
-                continue
-            user_id, has_offensive = sp
+        for user in self._load_user_ids(user_id_file_path, row_num):
+            user_id = user['id']
             logging.info(f'Start to fetch user_info, user_id={user_id}')
             try:
                 user_info = self.user_info_client.get_all_info(user_id)
-                user_info['user_id'] = user_id
-                user_info['has_offensive'] = has_offensive
-                writer.write(user_info)
+                user.update(user_info)
+                writer.write(user)
                 # 随机sleep1～5秒
                 time.sleep(random.randint(1,5))
                 err_num = 0
@@ -266,8 +309,9 @@ class WeiboSpider:
                 if err_num >= max_err_num:
                     logging.error(f'连续失败3次，可能触发反爬机制，请稍后重试或更换cookie')
                     break
-                logging.error(f'Fail to fetch user_info, user_id={user_id}, err={e}')
+                logging.error(f'Fail to fetch user_info, user_id={user_id}, err={e}, row_num={row_num}')
                 time.sleep(30)
+            row_num += 1
                 
 
     # 主要运行函数
@@ -279,6 +323,8 @@ class WeiboSpider:
         # 创建输出路径
         self._mkdir_output()
         self.fetch_all_keywords()
+        self._close_writers()
+        self.fetch_user_info()
 
 if __name__ == '__main__':
     import sys

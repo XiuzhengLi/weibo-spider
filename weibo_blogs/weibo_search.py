@@ -26,13 +26,15 @@ class WeiboSearchClient:
         self.user_info_client = UserProfileClient(cookie)
 
     def search(self, keyword, page_num: int=1, start_date: str='', end_date:str='', region: str='', weibo_type: int=1, contain_type: int=0):
-        url = f'{WEIBO_SEARCH_URL}/q={keyword}&page={page_num}'
+        keyword = keyword.replace('#', '%23')
+        url = f'{WEIBO_SEARCH_URL}?q={keyword}&page={page_num}'
         url += utils.convert_weibo_type(weibo_type)
         url += utils.convert_contain_type(contain_type)
         if start_date != '' and end_date != '':
             url += f'&timescope=custom:{start_date}-0:{end_date}-0'
         if region != '':
             url += f'&region=custom:{region}:1000'
+        print(url)
         resp = utils.make_request(url=url, headers=self.headers)
         tree = html.fromstring(resp.content)
         for weibo in self.parse_weibo(tree):

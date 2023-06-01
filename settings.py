@@ -20,17 +20,19 @@ CONTAIN_TYPE = 0
 REGION = ['全部']
 
 # 搜索的起始日期，为yyyy-mm-dd形式，搜索结果包含该日期
-START_DATE = '2023-05-20'
+START_DATE = '2023-05-30'
 
 # 搜索的终止日期，为yyyy-mm-dd形式，搜索结果包含该日期
-END_DATE = '2023-05-30'
+END_DATE = '2023-05-31'
 
 # 进一步细分搜索的阈值，若结果页数大于等于该值，则认为结果没有完全展示，细分搜索条件重新搜索以获取更多微博。数值越大速度越快，也越有可能漏掉微博；数值越小速度越慢，获取的微博就越多。
 # 建议数值大小设置在40到50之间。
-FURTHER_THRESHOLD = 46
+FURTHER_THRESHOLD = 1
 
 # 结果存储路径
 OUTPUT_PATH = './output'
+# output5行号,默认为1
+ID_ROW_NUM = 1
 
 # 选择要启用的功能, 开启True，关闭False
 # 是否启用评论
@@ -62,4 +64,4 @@ ATTITUDE_OUTPUT4_FIELDS = ['text_label']
 
 # OUTPUT5 输出的字段
 # 用户信息需要打印的字段，可选：id、idstr、screen_name、profile_image_url、profile_url、verified、verified_type、verified_reason、description、location、gender、followers_count、friends_count、statuses_count、birthday、created_at、ip_location、has_offensive
-USERINFO_OUTPUT_FIELDS = ['id', 'screen_name', 'verified', 'verified_reason', 'location', 'gender', 'followers_count', 'statuses_count', 'birthday', 'created_at', 'ip_location', 'has_offensive']
+USERINFO_OUTPUT_FIELDS = ['id', 'screen_name', 'verified', 'verified_reason', 'location', 'gender', 'followers_count', 'statuses_count', 'birthday', 'created_at', 'ip_location', 'has_offensive', 'action']
