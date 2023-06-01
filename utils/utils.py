@@ -141,6 +141,9 @@ def standardize_date(created_at):
     elif "今天" in created_at:
         today = datetime.now().strftime('%Y-%m-%d')
         created_at = today + ' ' + created_at[2:]
+    elif "昨天" in created_at:
+        yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        created_at = yesterday + ' ' + created_at[2:]
     elif '年' not in created_at:
         year = datetime.now().strftime("%Y")
         month = created_at[:2]
@@ -155,6 +158,19 @@ def standardize_date(created_at):
         created_at = year + '-' + month + '-' + day + ' ' + time
     return created_at
 
+def get_pried(time_str):
+    hour = 0
+    try:
+        hour = int(time_str.split(' ')[-1].split(':')[0])
+    except:
+        return '时间格式错误'
+    if hour < 6:
+        return '凌晨'
+    elif hour < 12:
+        return '上午'
+    elif hour < 18:
+        return '下午'
+    return '晚上'
 
 def str_to_time(text):
     """将字符串转换成时间类型"""

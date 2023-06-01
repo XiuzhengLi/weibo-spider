@@ -19,7 +19,7 @@ class Writer:
     def __init__(self, file_path:str, headers:str=[]):
         self.headers = headers
         exists = os.path.exists(file_path)
-        self.fp = open(file_path, 'a', encoding='utf-8-sig', newline='')
+        self.fp = open(file_path, 'a', encoding='utf-8', newline='')
         self.writer = csv.writer(self.fp)
         if not exists:
             self.writer.writerow(headers)
@@ -162,7 +162,7 @@ class WeiboSpider:
             os.mkdir(output5_path)
         output5_user_id_file_path = f'{output5_path}/user_id.csv'
         self.output5_user_id_writer = Writer(
-            output5_user_id_file_path, ['user_id', 'has_offensive']
+            output5_user_id_file_path, ['user_id', 'has_offensive', 'action', 'period']
         )
 
     def _close_writers(self):
@@ -188,7 +188,7 @@ class WeiboSpider:
             for mblog in mblogs:
                 mid = mblog['id']
                 mblog['text_label'] = self.predictor.predict(mblog['text'])
-                self.output5_user_id_writer.write_row([mblog['user_id'], mblog['text_label'], '发帖'])
+                self.output5_user_id_writer.write_row([mblog['user_id'], mblog['text_label'], '发帖', utils.get_pried(mblog['created_at'])])
                 self.output1_writer.write(mblog)
                 if self.enable_comment:
                     try:
@@ -197,14 +197,15 @@ class WeiboSpider:
                             mblog_with_comment.update(comment)
                             mblog_with_comment['comment_text_label'] = self.predictor.predict(comment['comment_text'])
                             self.output5_user_id_writer.write_row(
-                                [mblog_with_comment['comment_user_id'], mblog_with_comment['comment_text_label'], '评论'])
+                                [mblog_with_comment['comment_user_id'], mblog_with_comment['comment_text_label'], '评论', utils.get_pried(mblog_with_comment['comment_created_at'])])
                             mblog_with_comment['secondary_comment_text_label'] = self.predictor.predict(comment['secondary_comment_text'])
                             if len(mblog_with_comment) != 0:
                                 self.output5_user_id_writer.write_row(
                                     [
                                         mblog_with_comment['secondary_comment_user_id'],
                                         mblog_with_comment['secondary_comment_text_label'],
-                                        '评论'
+                                        '评论',
+                                        utils.get_pried(mblog_with_comment['secondary_comment_created_at'])
                                     ]
                                 )
                             self.output2_comment_writer.write(comment)
@@ -220,7 +221,7 @@ class WeiboSpider:
                             mblog_with_repost.update(repost)
                             mblog_with_repost['transmit_text_label'] = self.predictor.predict(repost['transmit_text'])
                             self.output5_user_id_writer.write_row(
-                                [mblog_with_repost['transmit_user_id'], mblog_with_repost['transmit_text_label'], '转发'])
+                                [mblog_with_repost['transmit_user_id'], mblog_with_repost['transmit_text_label'], '转发', utils.get_pried(mblog_with_repost['transmit_time'])])
                             self.output2_repost_writer.write(repost)
                             self.output3_repost_writer.write(mblog_with_repost)
                             self.output4_repost_writer.write(mblog_with_repost)
@@ -267,18 +268,19 @@ class WeiboSpider:
         user_ids = []
         if os.path.exists(file_path):
             index = 0
-            with open(file_path, 'r') as fp:
+            with open(file_path, 'r', encoding='utf-8', newline='') as fp:
                 for line in fp.readlines():
                     if index >= row_num:
                         sp = line.strip().split(',')
-                        if len(sp) < 3:
+                        if len(sp) < 4:
                             user_ids.append({'id': sp[0]})
                         else:
-                            user_id, action, has_offensive = sp
+                            user_id, has_offensive, action, period = sp
                             user_ids.append({
                                 'id': user_id,
                                 'action': action,
-                                'has_offensive': has_offensive
+                                'has_offensive': has_offensive,
+                                'period': period
                             })
                     index += 1
             logging.info(f'Loaded user_ids, start_num={row_num}, total={index}')
