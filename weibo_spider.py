@@ -23,12 +23,14 @@ class Writer:
         self.writer = csv.writer(self.fp)
         if not exists:
             self.writer.writerow(headers)
+            self.fp.flush()
 
     def write(self, doc:dict, output_fields:list=[]):
         if len(output_fields) == 0:
             output_fields = self.headers
         row = [doc.get(key, '') for key in output_fields]
         self.writer.writerow(row)
+        self.fp.flush()
 
     def write_row(self, row):
         self.writer.writerow(row)
@@ -199,7 +201,7 @@ class WeiboSpider:
                             self.output5_user_id_writer.write_row(
                                 [mblog_with_comment['comment_user_id'], mblog_with_comment['comment_text_label'], '评论', utils.get_pried(mblog_with_comment['comment_created_at'])])
                             mblog_with_comment['secondary_comment_text_label'] = self.predictor.predict(comment['secondary_comment_text'])
-                            if len(mblog_with_comment['secondary_comment_user_id']) != 0:
+                            if len(mblog_with_comment['secondary_comment_text']) != 0:
                                 self.output5_user_id_writer.write_row(
                                     [
                                         mblog_with_comment['secondary_comment_user_id'],
