@@ -36,11 +36,11 @@ ID_ROW_NUM = 1
 
 # 选择要启用的功能, 开启True，关闭False
 # 是否启用评论
-ENABLE_COMMENT = False
+ENABLE_COMMENT = True
 # 是否启用转发
-ENABLE_REPOST = False
+ENABLE_REPOST = True
 # 是否启用点赞
-ENABLE_ATTITUDE = False
+ENABLE_ATTITUDE = True
 
 # 选择要打印的字段
 # OUTPUT1 输出的字段
@@ -64,4 +64,4 @@ ATTITUDE_OUTPUT4_FIELDS = ['text_label']
 
 # OUTPUT5 输出的字段
 # 用户信息需要打印的字段，可选：id、idstr、screen_name、profile_image_url、profile_url、verified、verified_type、verified_reason、description、location、gender、followers_count、friends_count、statuses_count、birthday、created_at、ip_location、has_offensive、period
-USERINFO_OUTPUT_FIELDS = ['id', 'screen_name', 'verified', 'verified_reason', 'location', 'gender', 'followers_count', 'statuses_count', 'birthday', 'created_at', 'ip_location', 'has_offensive', 'action', 'period']
+USERINFO_OUTPUT_FIELDS = ['id', 'screen_name', 'verified', 'verified_reason', 'location', 'gender', 'followers_count', 'friends_count', 'statuses_count', 'birthday', 'created_at', 'ip_location', 'has_offensive', 'action', 'period']
